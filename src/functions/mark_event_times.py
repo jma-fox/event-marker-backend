@@ -3,11 +3,10 @@
 def mark_event_times(data):
     task_data = data["task_data"]
     event_data = data["event_data"]
-    selected_event = data["selected_event"]
-
+    event = data["event"]
     trial_starts = list(task_data['trial_start_time'])
-
     event_times = []
+
     for i in range(len(trial_starts)):
         trial_start = trial_starts[i]
 
@@ -18,7 +17,7 @@ def mark_event_times(data):
 
         filter_1 = (event_data['times'] >= trial_start)
         filter_2 = (event_data['times'] < trial_stop)
-        filter_3 = (event_data['events'] == selected_event)
+        filter_3 = (event_data['events'] == event)
         event_time = event_data[filter_1 & filter_2 & filter_3]['times']
 
         if not event_time.empty:
@@ -27,6 +26,6 @@ def mark_event_times(data):
         else:
             event_times.append(None)
 
-    task_data[f"{selected_event}_time"] = event_times
+    task_data[f"{event}_time"] = event_times
 
     return task_data

@@ -19,33 +19,31 @@ def streamlit_app():
         event_data = extract_task_events(tdt_data_path)
         task_data = read_task_file(task_file_path)
 
-        event_names = event_data['events'].unique().tolist()
-        selected_event = st.selectbox("Event to Mark:", options=event_names, index=0)
+        if 'trial_start_time' not in task_data.columns:
+            task_data = mark_trial_start_times(task_data, event_data)
 
-        bumper_index = st.text_input("Bumper Index:", value="")
-        try:
-            bumper_index = int(bumper_index)
-        except ValueError:
-            bumper_index = None
+        st.write(task_data)
+
+        event_names = event_data['events'].unique().tolist()
+        selected_event = st.selectbox("Event to Mark:", options=event_names)
+
+        st.write("")
 
         if st.button("Mark Task Events"):
             data = {
                 "event_data": event_data,
                 "task_data": task_data,
-                "bumper_index": bumper_index,
-                "selected_event": selected_event
+                "event": selected_event
             }
+
+            task_data = mark_event_times(data)
 
             st.write("")
 
-            task_data = mark_trial_start_times(data)
-            task_data = mark_event_times(data)
-
             st.write(task_data)
 
-            date = task_data["Date"].iloc[0]
             experiment = task_data["Experiment"].iloc[0]
-            file_name = f"{date}_{experiment}"
+            file_name = f"{experiment}"
 
             st.download_button(
                 label="Download Data",
